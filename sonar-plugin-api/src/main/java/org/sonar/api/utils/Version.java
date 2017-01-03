@@ -117,7 +117,7 @@ public class Version implements Comparable<Version> {
         if (size > 2) {
           patch = parseSequence(split.get(2));
           if (size > 3) {
-            throw new IllegalArgumentException("Only 3 sequences are accepted");
+            //throw new IllegalArgumentException("Only 3 sequences are accepted");
           }
         }
       }
