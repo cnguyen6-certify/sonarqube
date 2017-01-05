@@ -52,6 +52,7 @@ import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
@@ -71,12 +72,11 @@ import org.sonarqube.ws.Rules.ListResponse.Rule;
 import org.sonarqube.ws.Settings.Setting;
 
 /**
- * Main utility class for writing batch medium tests.
+ * Main utility class for writing scanner medium tests.
  * 
  */
 public class BatchMediumTester {
 
-  public static final String MEDIUM_TEST_ENABLED = "sonar.mediumTest.enabled";
   private Batch batch;
   private static Path workingDir = null;
   private static Path globalWorkingDir = null;
@@ -109,7 +109,7 @@ public class BatchMediumTester {
     }
 
     BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
-    builder.bootstrapProperties.put(MEDIUM_TEST_ENABLED, "true");
+    builder.bootstrapProperties.put(GlobalMode.MEDIUM_TEST_ENABLED, "true");
     builder.bootstrapProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
     builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, workingDir.toString());
     builder.bootstrapProperties.put("sonar.userHome", globalWorkingDir.toString());
