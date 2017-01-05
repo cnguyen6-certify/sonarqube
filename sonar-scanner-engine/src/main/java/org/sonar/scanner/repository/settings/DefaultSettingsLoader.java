@@ -27,17 +27,18 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.Settings.Setting;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultSettingsLoader implements SettingsLoader {
 
-  private BatchWsClient wsClient;
   private static final Logger LOG = Loggers.get(DefaultSettingsLoader.class);
 
-  public DefaultSettingsLoader(BatchWsClient wsClient) {
+  private ScannerWsClient wsClient;
+
+  public DefaultSettingsLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 
