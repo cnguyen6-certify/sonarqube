@@ -19,7 +19,10 @@
  */
 package org.sonar.server.platform.web;
 
+import com.google.common.base.Joiner;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -51,6 +54,22 @@ public class RoutesFilter implements Filter {
     } else if (API_SOURCES_WS.equals(path)) {
       // SONAR-7852 /api/sources?resource url is still used
       response.sendRedirect(format("%s%s/index?%s", request.getContextPath(), API_SOURCES_WS, request.getQueryString()));
+    } else if (!path.equals("/api/properties/index") && path.startsWith("/api/properties")) {
+      // api/properties is used in past version of SonarLint
+      List<String> parameters = new ArrayList<>();
+      String queryString = request.getQueryString();
+      if (queryString != null) {
+        parameters.add(queryString);
+      }
+      String key = path.replace("/api/properties", "");
+      if (!key.isEmpty()) {
+        parameters.add(String.format("key=%s", key.replaceFirst("/", "")));
+      }
+      if (parameters.isEmpty()) {
+        response.sendRedirect(format("%s%s/index", request.getContextPath(), "/api/properties"));
+      } else {
+        response.sendRedirect(format("%s%s/index?%s", request.getContextPath(), "/api/properties", Joiner.on("&").join(parameters)));
+      }
     } else {
       chain.doFilter(request, response);
     }
