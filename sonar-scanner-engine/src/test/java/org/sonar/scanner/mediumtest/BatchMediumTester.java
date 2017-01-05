@@ -19,25 +19,40 @@
  */
 package org.sonar.scanner.mediumtest;
 
+import com.google.common.base.Function;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Plugin;
+import org.sonar.api.batch.debt.internal.DefaultDebtModel;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.bootstrapper.LogOutput;
-import com.google.common.collect.Table;
-import com.google.common.collect.HashBasedTable;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.apache.commons.io.FileUtils;
-
-import javax.annotation.Nullable;
-
-import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.sonar.api.server.rule.RulesDefinition.Repository;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
-import org.sonar.scanner.mediumtest.FakePluginInstaller;
-import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.report.ReportPublisher;
@@ -47,29 +62,13 @@ import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.ServerIssuesLoader;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
-import com.google.common.base.Function;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Plugin;
-import org.sonar.api.batch.debt.internal.DefaultDebtModel;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
+import org.sonarqube.ws.Settings.Setting;
 
 /**
  * Main utility class for writing batch medium tests.
@@ -287,7 +286,8 @@ public class BatchMediumTester {
         builder.rulesLoader,
         builder.projectRefProvider,
         builder.activeRules,
-        new DefaultDebtModel())
+        new DefaultDebtModel(),
+        new FakeSettingsLoader())
       .setBootstrapProperties(builder.bootstrapProperties)
       .setLogOutput(builder.logOutput);
 
@@ -475,6 +475,14 @@ public class BatchMediumTester {
       for (ServerIssue serverIssue : serverIssues) {
         consumer.apply(serverIssue);
       }
+    }
+  }
+
+  private static class FakeSettingsLoader implements SettingsLoader {
+
+    @Override
+    public List<Setting> load(String componentKey) {
+      return Collections.emptyList();
     }
   }
 
